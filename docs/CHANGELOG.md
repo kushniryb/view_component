@@ -44,6 +44,7 @@ nav_order: 6
 
     *Joel Hawksley*
 
+<<<<<<< HEAD
 * Clarify that `config.use_deprecated_instrumentation_name` will be removed in v4.
 
     *Joel Hawksley*
@@ -105,6 +106,9 @@ nav_order: 6
 * Add FreeATS to list of companies using ViewComponent.
 
     *Ilia Liamshin*
+* BREAKING: Remove support for variant names containing `.` to be consistent with Rails.
+
+    *Stephen Nelson*
 
 * Ensure HTML output safety wrapper is used for all inline templates.
 
