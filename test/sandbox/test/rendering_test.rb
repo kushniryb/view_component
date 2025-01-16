@@ -15,16 +15,7 @@ class RenderingTest < ViewComponent::TestCase
     ViewComponent::CompileCache.cache.delete(MyComponent)
     MyComponent.ensure_compiled
 
-    allocations =
-      if Rails.version.to_f < 8.0
-        {"3.3.8" => 124, "3.3.0" => 140, "3.2.8" => 122, "3.1.7" => 122, "3.0.7" => 131}
-      elsif Rails.version.split(".").first(2).map(&:to_i) == [8, 0]
-        {"3.5.0" => 117, "3.4.4" => 121, "3.3.8" => 133}
-      else
-        {"3.4.4" => 119}
-      end
-
-    assert_allocations(**allocations) do
+    assert_allocations("3.5.0" => 104, "3.4.1" => 107, "3.3.6" => 107, "3.2.6" => 105) do
       render_inline(MyComponent.new)
     end
 
@@ -195,6 +186,14 @@ class RenderingTest < ViewComponent::TestCase
 
   def test_renders_component_with_variant
     with_variant :phone do
+      render_inline(VariantsComponent.new)
+
+      assert_text("Phone")
+    end
+  end
+
+  def test_renders_component_with_multiple_variants
+    with_variant :app, :phone do
       render_inline(VariantsComponent.new)
 
       assert_text("Phone")
@@ -1226,6 +1225,20 @@ class RenderingTest < ViewComponent::TestCase
     end
   end
 
+  def test_with_format_missing
+    with_format(:xml) do
+      exception =
+        assert_raises ViewComponent::MissingTemplateError do
+          render_inline(MultipleFormatsComponent.new)
+        end
+
+      assert_includes(
+        exception.message,
+        "No templates for MultipleFormatsComponent match the request"
+      )
+    end
+  end
+
   def test_localised_component
     render_inline(LocalisedComponent.new)
 
@@ -1238,6 +1251,7 @@ class RenderingTest < ViewComponent::TestCase
     assert_text("foo")
   end
 
+<<<<<<< HEAD
   # In https://github.com/ViewComponent/view_component/issues/2187,
   # the Solidus test suite built mocked components by hand, resulting
   # in a difficult-to-debug error. While this test case is quite narrow,
@@ -1274,5 +1288,15 @@ class RenderingTest < ViewComponent::TestCase
     custom_view = CustomView.with_empty_template_cache.with_view_paths []
 
     assert_includes("Hi!", custom_view.render(GreetingComponent.new))
+  end
+
+  def test_turbo_stream_format_custom_variant
+    with_format(:turbo_stream, :html) do
+      with_variant(:custom) do
+        render_inline(TurboStreamFormatComponent.new)
+
+        assert_text("Hi turbo stream custom!")
+      end
+    end
   end
 end
